@@ -37,9 +37,7 @@ def predict():
         marca_df = pd.DataFrame([[marca]], columns=['name'])
         marca_codificada = encoder_name.transform(marca_df)[0][0]
 
-        # Crear un DataFrame con los datos, en el mismo orden de columnas
-        # usado al entrenar el modelo: ['max_power (in bph)', 'year',
-        # 'Engine (CC)', 'km_driven', 'Mileage', 'name']
+        # Crear un DataFrame con los datos en el mismo orden de columnas del entrenamiento
         data_df = pd.DataFrame(
             [[max_power, year, engine_cc, km_driven, mileage, marca_codificada]],
             columns=['max_power (in bph)', 'year', 'Engine (CC)', 'km_driven', 'Mileage', 'name']
