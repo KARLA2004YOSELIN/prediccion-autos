@@ -223,15 +223,24 @@
                 if (data.error) {
                     resultadoEl.className = 'error';
                     resultadoEl.innerText = 'Error: ' + data.error;
+                    
+                    // CAMBIO AQUÍ: Se fuerza la visibilidad para asegurar que muestre el recuadro si falla
+                    resultadoEl.style.display = 'block';
                 } else {
                     const precio = data.precio_estimado.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
                     resultadoEl.className = 'ok';
                     resultadoEl.innerText = 'Precio estimado: $' + precio;
+                    
+                    // CAMBIO AQUÍ: Rompe el bloqueo visual obligando al elemento a pasar de 'none' a 'block'
+                    resultadoEl.style.display = 'block';
                 }
             })
             .catch(error => {
                 resultadoEl.className = 'error';
                 resultadoEl.innerText = 'Error en la solicitud.';
+                
+                // CAMBIO AQUÍ: Asegura que se muestre el aviso incluso si el error proviene de la conexión de red
+                resultadoEl.style.display = 'block';
                 console.error('Error:', error);
             });
         }
