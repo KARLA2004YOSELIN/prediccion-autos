@@ -203,23 +203,20 @@
         function predecirPrecio(event) {
             event.preventDefault();
 
-            const marca = document.getElementById('marca').value;
-            const year = document.getElementById('year').value;
-            const km_driven = document.getElementById('km_driven').value;
-            const max_power = document.getElementById('max_power').value;
-            const mileage = document.getElementById('mileage').value;
-            const engine_cc = document.getElementById('engine_cc').value;
-
             const resultadoEl = document.getElementById('resultado');
             resultadoEl.className = '';
             resultadoEl.style.display = 'none';
+
+            // Junta todos los datos del formulario de forma automática y limpia
+            const formData = new FormData(document.getElementById('formulario'));
+            const dataSearchParams = new URLSearchParams(formData);
 
             fetch('/predict', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
-                body: `marca=${encodeURIComponent(marca)}&year=${year}&km_driven=${km_driven}&max_power=${max_power}&mileage=${mileage}&engine_cc=${engine_cc}`,
+                body: dataSearchParams.toString(),
             })
             .then(response => response.json())
             .then(data => {
