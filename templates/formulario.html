@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Predicción de Precio de Autos</title>
+    <style>
+        :root {
+            --primary: #1E2761;
+            --primary-light: #CADCFC;
+            --bg: #F5F6FA;
+            --card-bg: #FFFFFF;
+            --text: #1B1F33;
+            --muted: #5B6178;
+            --accent: #2E5BFF;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 24px 16px 60px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 480px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            padding: 32px 28px;
+            box-shadow: 0 10px 30px rgba(30, 39, 97, 0.08);
+        }
+
+        h1 {
+            font-size: 28px;
+            line-height: 1.2;
+            color: var(--primary);
+            margin: 0 0 12px;
+        }
+
+        .subtitle {
+            color: var(--muted);
+            font-size: 15px;
+            line-height: 1.5;
+            margin-bottom: 28px;
+        }
+
+        .subtitle b { color: var(--text); }
+
+        .metric-card {
+            background: var(--primary-light);
+            border-radius: 16px;
+            padding: 18px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .metric-label {
+            font-size: 14px;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .metric-note {
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 4px;
+        }
+
+        form {
+            margin-top: 28px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            font-size: 14px;
+            margin: 18px 0 6px;
+            color: var(--text);
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid #D7DAE5;
+            border-radius: 10px;
+            font-size: 15px;
+            color: var(--text);
+            background: #FAFBFC;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        button {
+            width: 100%;
+            margin-top: 28px;
+            padding: 14px;
+            border: none;
+            border-radius: 10px;
+            background: var(--accent);
+            color: white;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover { background: #1f47d8; }
+
+        #resultado {
+            margin-top: 22px;
+            padding: 18px;
+            border-radius: 12px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            display: none;
+        }
+
+        #resultado.ok {
+            background: #E5F4EA;
+            color: #1E7C3A;
+            display: block;
+        }
+
+        #resultado.error {
+            background: #FBE7E7;
+            color: #B42318;
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Predicción de Precio de Autos</h1>
+        <p class="subtitle">
+            Esta aplicación usa un modelo de <b>Random Forest</b> para estimar el
+            <b>precio de venta</b> de un auto usado, con base en 6 variables del dataset
+            <b>processes2.csv</b>.
+        </p>
+
+        <div class="metric-card">
+            <div class="metric-label">R² promedio CV=7</div>
+            <div class="metric-value">0.8869</div>
+            <div class="metric-note">Mayor a 0.80 indica buen desempeño del modelo.</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-label">MAE promedio CV=7</div>
+            <div class="metric-value">$55,592</div>
+            <div class="metric-note">Error promedio en el precio estimado.</div>
+        </div>
+
+        <div class="metric-card">
+            <div class="metric-label">R² corrida independiente</div>
+            <div class="metric-value">0.8895</div>
+            <div class="metric-note">Evaluación 80/20 para referencia.</div>
+        </div>
+
+        <form id="formulario" onsubmit="predecirPrecio(event)">
+            <label for="marca">Marca</label>
+            <select id="marca" name="marca">
+                {% for m in marcas %}
+                <option value="{{ m }}">{{ m }}</option>
+                {% endfor %}
+            </select>
+
+            <label for="year">Año del vehículo</label>
+            <input type="number" id="year" name="year" placeholder="Ejemplo: 2018" min="2000" max="2020" required>
+
+            <label for="km_driven">Kilómetros recorridos</label>
+            <input type="number" id="km_driven" name="km_driven" placeholder="Ejemplo: 45000" min="0" required>
+
+            <label for="max_power">Potencia máxima (bph)</label>
+            <input type="number" id="max_power" name="max_power" placeholder="Ejemplo: 80" step="0.1" min="0" required>
+
+            <label for="mileage">Rendimiento (Mileage)</label>
+            <input type="number" id="mileage" name="mileage" placeholder="Ejemplo: 21.5" step="0.1" min="0" required>
+
+            <label for="engine_cc">Cilindrada del motor (CC)</label>
+            <input type="number" id="engine_cc" name="engine_cc" placeholder="Ejemplo: 1200" min="0" required>
+
+            <button type="submit">Predecir precio de venta</button>
+        </form>
+
+        <p id="resultado"></p>
+    </div>
+
+    <script>
+        function predecirPrecio(event) {
+            event.preventDefault();
+
+            const marca = document.getElementById('marca').value;
+            const year = document.getElementById('year').value;
+            const km_driven = document.getElementById('km_driven').value;
+            const max_power = document.getElementById('max_power').value;
+            const mileage = document.getElementById('mileage').value;
+            const engine_cc = document.getElementById('engine_cc').value;
+
+            const resultadoEl = document.getElementById('resultado');
+            resultadoEl.className = '';
+            resultadoEl.style.display = 'none';
+
+            fetch('/predict', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `marca=${encodeURIComponent(marca)}&year=${year}&km_driven=${km_driven}&max_power=${max_power}&mileage=${mileage}&engine_cc=${engine_cc}`,
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    resultadoEl.className = 'error';
+                    resultadoEl.innerText = 'Error: ' + data.error;
+                } else {
+                    const precio = data.precio_estimado.toLocaleString('es-MX', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+                    resultadoEl.className = 'ok';
+                    resultadoEl.innerText = 'Precio estimado: $' + precio;
+                }
+            })
+            .catch(error => {
+                resultadoEl.className = 'error';
+                resultadoEl.innerText = 'Error en la solicitud.';
+                console.error('Error:', error);
+            });
+        }
+    </script>
+</body>
+</html>
